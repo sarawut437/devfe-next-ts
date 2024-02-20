@@ -1,8 +1,10 @@
 "use client";
 import LeftBar from "@/components/LeftBar";
-
+import SearchBar from "@/components/UserBar";
+import { Customers, getCustomerByid } from "@/data_services/customers/getCustomers";
 import { Foods, getFoods } from "@/data_services/foods/getFood";
 import { useEffect, useRef, useState } from "react";
+import Loading from "./loading";
 
 type items = {
     img: string | undefined;
@@ -15,7 +17,14 @@ type items = {
 const Page = () => {
     const SearchText = useRef<string>("");
 
-   
+    const [customers, setCustomers] = useState<Customers |null>(null);
+     useEffect(() => {
+        (async()=>{
+         const customersInfo = await getCustomerByid(2)
+         setCustomers(customersInfo?? null)
+        })()
+          
+    },[]);
 
     const [foods, setFoods] = useState<Foods[] |null>(null);
      useEffect(() => {
@@ -39,6 +48,7 @@ const Page = () => {
         });
 
         console.log("filter menu ->", filterOutput);
+        
     };
 
     const [selectProductItems, setProductItems] = useState<Foods[]>([]);
@@ -113,13 +123,16 @@ const Page = () => {
         setAllItemsAdded(true);
     };
     
-   
+    if(!customers){
+        return <Loading/>
+
+    }
     return (
         <div className="flex flex-col h-screen">
-			
+			<SearchBar customersInfo={customers} />
             <div className="flex flex-1">
             <LeftBar handleFilter={ handleFilter} handleAddAllToCart={handleAddAllToCart} handleItemCountDecrement={handleItemCountDecrement} handleItemCountIncrement={handleItemCountIncrement} handleItemClick={handleItemClick} foods={foods} itemCounts={itemCounts} SearchText={SearchText} />
-           
+     
 </div>
         </div>
     );
